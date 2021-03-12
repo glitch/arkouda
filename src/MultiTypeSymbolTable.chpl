@@ -30,13 +30,13 @@ module MultiTypeSymbolTable
         */
         var tab: map(string, shared GenSymEntry);
 
-        var nid = 0;
+        // Note: this defaults to 0, the chpl compiler says you can't directly set atomic vars
+        var nid: atomic uint;
         /*
         Gives out symbol names.
         */
         proc nextName():string {
-            nid += 1;
-            return "id_"+ nid:string;
+            return "id_" + nid.fetchAdd(1):string;
         }
 
         proc regName(name: string, userDefinedName: string) throws {
