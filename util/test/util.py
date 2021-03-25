@@ -119,8 +119,8 @@ def read_server_and_port_from_file(server_connection_info):
 Global information about the server's hostname, port, and subprocess. This is
 global so that the clients don't have to pass the information around manually.
 """
-ServerInfo = namedtuple('ServerInfo', 'host port process')
-_server_info = ServerInfo(None, None, None)
+ServerInfo = namedtuple('ServerInfo', 'host port process token')
+_server_info = ServerInfo(None, None, None, None)
 
 def set_server_info(info):
     """
@@ -161,16 +161,17 @@ def kill_server(server_process):
             logging.warn('Attempting dirty server shutdown')
             server_process.kill()
 
-def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=None):
+def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=None, with_auth=False):
     """
     Start the Arkouda server and wait for it to start running. Connection info
     is written to `get_arkouda_server_info_file()`.
     
-    :param int numlocals: the number of arkouda_server locales
+    :param int numlocales: the number of arkouda_server locales
     :param bool verbose: indicates whether to start the arkouda_server in verbose mode
     :param bool log: indicates whether to start arkouda_server with logging enabled
     :param int port: the desired arkouda_server port, defaults to 5555
     :param str host: the desired arkouda_server host, defaults to None
+    :param bool with_auth: whether to start arkouda_server with --authenticate flag, default is False
     :return: tuple containing server host, port, and process
     :rtype: ServerInfo(host, port, process)
     """
@@ -183,6 +184,8 @@ def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=N
            '--v={}'.format('true' if verbose else 'false'),
            '--serverConnectionInfo={}'.format(connection_file),
            '-nl {}'.format(numlocales), '--ServerPort={}'.format(port)]
+    if with_auth:
+        cmd.append("--authenticate")
 
     logging.info('Starting "{}"'.format(cmd))
     process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
@@ -194,7 +197,13 @@ def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=N
         via the read_server_and_port_from_file method
         '''
         host, port = read_server_and_port_from_file(connection_file)
-    server_info = ServerInfo(host, port, process)
+
+    token = None
+    if with_auth:
+        # Try to read local arkouda token, default it .arkouda/token.txt
+        with open(os.path.join(get_arkouda_home(), ".arkouda", "tokens.txt")) as token_file:
+            token = token_file.readline().strip()
+    server_info = ServerInfo(host, port, process, token)
     set_server_info(server_info)
     return server_info
 
@@ -204,7 +213,7 @@ def stop_arkouda_server():
     
     :return: None
     """
-    _, _, server_process = get_server_info()
+    _, _, server_process, _ = get_server_info()
     try:
         run_client(os.path.join(util_dir, 'shutdown.py'), timeout=60)
         server_process.wait(5)
@@ -235,7 +244,7 @@ def run_client(client, client_args=None, timeout=get_client_timeout()):
     :rtype: str
     """
     server_info = get_server_info()
-    cmd = ['python3'] + [client] + [server_info.host, str(server_info.port)]
+    cmd = ['python3'] + [client] + [server_info.host, str(server_info.port), server_info.token]
     if client_args:
         cmd += client_args
     logging.info('Running client "{}"'.format(cmd))
