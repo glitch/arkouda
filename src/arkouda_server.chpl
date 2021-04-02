@@ -129,6 +129,7 @@ proc main() {
         stdout.flush();
     }
 
+    initDirectory(arkDirectory); // ensure this exists in case a user overrode the default.
 
     var st = new owned SymTab();
     var shutdownServer = false;
