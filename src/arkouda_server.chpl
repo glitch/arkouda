@@ -35,6 +35,9 @@ proc initArkoudaDirectory() {
     return arkDirectory;
 }
 
+// This allows us to set this on the command line as an argument, or use the default if not set
+config const arkDirectory = initArkoudaDirectory();
+
 proc main() {
  
     proc printServerSplashMessage(token: string, arkDirectory: string) throws {
@@ -126,7 +129,6 @@ proc main() {
         stdout.flush();
     }
 
-    const arkDirectory = initArkoudaDirectory();
 
     var st = new owned SymTab();
     var shutdownServer = false;
