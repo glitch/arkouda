@@ -189,6 +189,7 @@ def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=N
 
     logging.info('Starting "{}"'.format(cmd))
     process = subprocess.Popen(cmd, stdout=subprocess.DEVNULL)
+    # process.communicate()
     atexit.register(kill_server, process)
 
     if not host:
@@ -201,7 +202,7 @@ def start_arkouda_server(numlocales, verbose=False, log=False, port=5555, host=N
     token = None
     if with_auth:
         # Try to read local arkouda token, default it .arkouda/token.txt
-        with open(os.path.join(get_arkouda_home(), ".arkouda", "tokens.txt")) as token_file:
+        with open(os.path.join(get_arkouda_home(), "tests", ".arkouda", "tokens.txt")) as token_file:
             token = token_file.readline().strip()
     server_info = ServerInfo(host, port, process, token)
     set_server_info(server_info)
