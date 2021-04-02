@@ -244,7 +244,11 @@ def run_client(client, client_args=None, timeout=get_client_timeout()):
     :rtype: str
     """
     server_info = get_server_info()
-    cmd = ['python3'] + [client] + [server_info.host, str(server_info.port), server_info.token]
+
+    cmd = ['python3'] + [client] + [server_info.host, str(server_info.port)]
+    if server_info.token:
+        print(f"util.py:run_client: token => {server_info.token}")
+        cmd.append(server_info.token)
     if client_args:
         cmd += client_args
     logging.info('Running client "{}"'.format(cmd))
