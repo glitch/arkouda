@@ -1,7 +1,8 @@
 import pytest
 import os
 from util.test.util import start_arkouda_server, stop_arkouda_server
-
+from arkouda.client import connect, ruok
+from arkouda import io_util
 
 class ArkoudaServerFixture:
     verbose = True if os.getenv('ARKOUDA_VERBOSE') == 'True' else False
@@ -51,10 +52,25 @@ def get_server(request):
     print(f"len(info): {len(info)}")
     print(f"host:{info.host}, port:{info.port}, process:{info.process}")
     yield info
+    server.stop()
+
 
 
 
 def test_init_with_auth(get_server):
     print("test_int_with_auth called")
     print(get_server)
-    pass
+    print(f"YO DAWG:{get_server.token}")
+    connect(server=get_server.host, port=get_server.port, access_token=get_server.token)
+    #assert ruok() == "imok"
+    text=ruok()
+    print(f"LOOKATTHIS {text}")
+    if not "imok".equals(text):
+        print("YOU FAILED")
+        pytest.fail("Server not ok")
+
+
+def skip_test_token_file():
+    path = '.arkouda/tokens.txt'
+    tokens = io_util.delimited_file_to_dict(path)
+    print(tokens)
