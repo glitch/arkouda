@@ -26,7 +26,8 @@ Functions
    arkouda.numeric.value_counts
 
 
-.. function:: cast(pda: Union[(pdarray, Strings)], dt: Union[(np.dtype, str)]) -> Union[(pdarray, Strings)]
+
+.. function:: cast(pda: Union[arkouda.pdarrayclass.pdarray, arkouda.strings.Strings], dt: Union[numpy.dtype, str]) -> Union[arkouda.pdarrayclass.pdarray, arkouda.strings.Strings]
 
    Cast an array to another dtype.
 
@@ -217,7 +218,7 @@ Functions
    :raises TypeError: Raised if the parameter is not a pdarray
 
 
-.. function:: where(condition: arkouda.pdarrayclass.pdarray, A: Union[(Union[int, float, np.int64, np.float64], pdarray)], B: Union[(Union[int, float, np.int64, np.float64], pdarray)]) -> arkouda.pdarrayclass.pdarray
+.. function:: where(condition: arkouda.pdarrayclass.pdarray, A: Union[arkouda.dtypes.numeric_scalars, arkouda.pdarrayclass.pdarray], B: Union[arkouda.dtypes.numeric_scalars, arkouda.pdarrayclass.pdarray]) -> arkouda.pdarrayclass.pdarray
 
    Returns an array with elements chosen from A and B based upon a
    conditioning array. As is the case with numpy.where, the return array
@@ -228,9 +229,9 @@ Functions
    :param condition: Used to choose values from A or B
    :type condition: pdarray
    :param A: Value(s) used when condition is True
-   :type A: Union[Union[int,float,np.int64,np.float64], pdarray]
+   :type A: Union[numeric_scalars, pdarray]
    :param B: Value(s) used when condition is False
-   :type B: Union[Union[int,float,np.int64,np.float64], pdarray]
+   :type B: Union[numeric_scalars, pdarray]
 
    :returns: Values chosen from A where the condition is True and B where
              the condition is False
@@ -269,14 +270,14 @@ Functions
    is not currently supported in Arkouda
 
 
-.. function:: histogram(pda: arkouda.pdarrayclass.pdarray, bins: Union[(int, np.int64)] = 10) -> arkouda.pdarrayclass.pdarray
+.. function:: histogram(pda: arkouda.pdarrayclass.pdarray, bins: arkouda.dtypes.int_scalars = 10) -> arkouda.pdarrayclass.pdarray
 
    Compute a histogram of evenly spaced bins over the range of an array.
 
    :param pda: The values to histogram
    :type pda: pdarray
    :param bins: The number of equal-size bins to use (default: 10)
-   :type bins: Union[int,np.int64]
+   :type bins: int_scalars
 
    :returns: The number of values present in each bin
    :rtype: pdarray, int64 or float64
@@ -310,7 +311,7 @@ Functions
    >>> plt.plot(binEdges[:-1], h.to_ndarray())
 
 
-.. function:: value_counts(pda: arkouda.pdarrayclass.pdarray) -> Union[(Categorical, Tuple[Union[pdarray, Strings], Optional[pdarray]])]
+.. function:: value_counts(pda: arkouda.pdarrayclass.pdarray) -> Union[Categorical, Tuple[Union[arkouda.pdarrayclass.pdarray, arkouda.strings.Strings], Optional[arkouda.pdarrayclass.pdarray]]]
 
    Count the occurrences of the unique values of an array.
 
